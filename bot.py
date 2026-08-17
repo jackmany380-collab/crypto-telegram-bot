@@ -2,7 +2,7 @@ import os
 import requests
 
 TOKEN = os.environ["BOT_TOKEN"]
-CHANNEL = "@ZEROVIXX"
+CHANNEL = "@نام_کاربری_کانال"
 
 url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 
