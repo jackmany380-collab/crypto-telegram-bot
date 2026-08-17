@@ -6,9 +6,7 @@ HEADERS = {
 }
 
 
-def get_price(slug):
-    url = f"https://www.tgju.org/profile/{slug}"
-
+def get_page(url):
     response = requests.get(
         url,
         headers=HEADERS,
@@ -17,12 +15,15 @@ def get_price(slug):
 
     response.raise_for_status()
 
-    html = response.text
+    return response.text
+
+
+def extract_price(html):
 
     patterns = [
-        r'data-price=["\']([\d,]+)',
-        r'itemprop=["\']price["\'][^>]*>\s*([\d,]+)',
-        r'نرخ فعلی::\s*([\d,]+)'
+        r'"price"\s*:\s*"?(.*?)"?[,}]',
+        r'"current_price"\s*:\s*"?(.*?)"?[,}]',
+        r'data-price=["\'](.*?)["\']'
     ]
 
     for pattern in patterns:
@@ -34,58 +35,71 @@ def get_price(slug):
         )
 
         if match:
-            return match.group(1)
+            value = match.group(1)
+
+            value = re.sub(
+                r"[^\d.]",
+                "",
+                value
+            )
+
+            if value:
+                return value
 
     return None
 
 
-# =========================
-# قیمت‌هایی که می‌خواهیم تست کنیم
-# =========================
+# ==========================================
+# TEST URLS
+# ==========================================
 
-slugs = {
-    "دلار آزاد": "price_dollar_rl",
-    "تتر": "crypto-tether",
-    "طلای 18 عیار": "geram18",
-    "مثقال طلا": "mesghal",
-    "سکه امامی": "sekee",
-    "نیم سکه": "nim",
-    "ربع سکه": "rob",
-    "انس جهانی طلا": "ons"
+urls = {
+
+    "دلار آزاد":
+        "https://www.tgju.org/profile/price_dollar_rl",
+
+    "تتر":
+        "https://www.tgju.org/profile/crypto-tether",
+
+    "طلای 18 عیار":
+        "https://www.tgju.org/profile/geram18",
+
+    "مثقال طلا":
+        "https://www.tgju.org/profile/mesghal",
+
+    "سکه امامی":
+        "https://www.tgju.org/profile/sekee",
+
+    "نیم سکه":
+        "https://www.tgju.org/profile/nim",
+
+    "ربع سکه":
+        "https://www.tgju.org/profile/rob",
+
+    "انس جهانی طلا":
+        "https://www.tgju.org/profile/ons"
 }
 
 
-results = {}
+print("")
+print("========== MARKET TEST ==========")
+print("")
 
 
-# =========================
-# دریافت قیمت‌ها
-# =========================
-
-for name, slug in slugs.items():
+for name, url in urls.items():
 
     try:
 
-        price = get_price(slug)
+        html = get_page(url)
 
-        results[name] = price
+        price = extract_price(html)
+
+        print(f"{name}: {price}")
 
     except Exception as e:
 
-        results[name] = f"ERROR: {e}"
+        print(f"{name}: ERROR - {e}")
 
-
-# =========================
-# نمایش نتیجه
-# =========================
 
 print("")
-print("========== TGJU TEST ==========")
-print("")
-
-for name, price in results.items():
-
-    print(f"{name}: {price}")
-
-print("")
-print("================================")
+print("==================================")
