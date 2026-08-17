@@ -1,7 +1,10 @@
-name: Test Crypto Bot
+name: Crypto Telegram Bot
 
 on:
   workflow_dispatch:
+
+  schedule:
+    - cron: '17 0,6,12,18 * * *'
 
 jobs:
   test:
