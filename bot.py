@@ -1,13 +1,17 @@
-print("ربات کریپتو شروع شد!")
-
+import os
 import requests
 
-print("در حال تست اتصال...")
+TOKEN = os.environ["BOT_TOKEN"]
+CHANNEL = "@ZEROVIXX"
 
-response = requests.get(
-    "https://api.telegram.org",
-    timeout=20
-)
+url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+
+data = {
+    "chat_id": CHANNEL,
+    "text": "🎉 تست موفق!\n\nربات با موفقیت به کانال متصل شد."
+}
+
+response = requests.post(url, data=data, timeout=20)
 
 print("Status:", response.status_code)
-print("اتصال برقرار شد!")
+print("Response:", response.text)
