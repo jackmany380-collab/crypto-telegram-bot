@@ -1,67 +1,50 @@
 import requests
 from bs4 import BeautifulSoup
-
-URL = "https://www.tgju.org/"
+import re
 
 headers = {
     "User-Agent": "Mozilla/5.0"
 }
 
-try:
-    response = requests.get(
-        URL,
-        headers=headers,
-        timeout=20
-    )
+pages = {
+    "تتر": "https://www.tgju.org/profile/usdt",
+    "طلای 18 عیار": "https://www.tgju.org/profile/geram18",
+    "مثقال طلا": "https://www.tgju.org/profile/mesghal",
+    "سکه امامی": "https://www.tgju.org/profile/sekee",
+    "نیم سکه": "https://www.tgju.org/profile/nim",
+    "ربع سکه": "https://www.tgju.org/profile/rob",
+}
 
-    response.raise_for_status()
+for name, url in pages.items():
 
-    soup = BeautifulSoup(response.text, "html.parser")
+    print("\n" + "=" * 50)
+    print(f"🔎 {name}")
+    print("=" * 50)
 
-    print("Status:", response.status_code)
-    print("=" * 70)
+    try:
+        response = requests.get(
+            url,
+            headers=headers,
+            timeout=20
+        )
 
-    keywords = [
-        "تتر",
-        "طلای 18 عیار",
-        "مثقال طلا",
-        "سکه امامی",
-        "نیم سکه",
-        "ربع سکه",
-        "انس جهانی طلا"
-    ]
+        print("Status:", response.status_code)
 
-    for keyword in keywords:
+        soup = BeautifulSoup(response.text, "html.parser")
 
-        print(f"\n🔎 {keyword}")
+        # پیدا کردن عبارت «نرخ فعلی»
+        text = soup.get_text(" ", strip=True)
 
-        found = False
+        match = re.search(
+            r"نرخ فعلی\s*:?\s*([\d,]+(?:\.\d+)?)",
+            text
+        )
 
-        for text in soup.find_all(string=lambda t: t and keyword in t):
+        if match:
+            price = match.group(1)
+            print(f"✅ {name}: {price}")
+        else:
+            print(f"❌ قیمت {name} پیدا نشد")
 
-            element = text.parent
-
-            print("TEXT:", text.strip()[:100])
-            print("ELEMENT:", element.name)
-            print("HTML اطراف:")
-
-            # نمایش والدهای نزدیک
-            parent = element
-
-            for level in range(4):
-                if parent:
-                    print(f"\n--- Level {level} ---")
-                    print(str(parent)[:2000])
-                    parent = parent.parent
-
-            found = True
-            break
-
-        if not found:
-            print("❌ پیدا نشد")
-
-    print("\n" + "=" * 70)
-
-except Exception as e:
-    print("❌ ERROR:", e)
-    raise
+    except Exception as e:
+        print(f"❌ ERROR: {e}")
