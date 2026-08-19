@@ -5,7 +5,7 @@ headers = {
     "User-Agent": "Mozilla/5.0"
 }
 
-url = "https://www.tgju.org/profile/crypto-tether"
+url = "https://www.tgju.org/"
 
 try:
     response = requests.get(
@@ -20,22 +20,21 @@ try:
 
     soup = BeautifulSoup(response.text, "html.parser")
 
-    prices = soup.find_all(
-        "td",
-        class_="text-left"
-    )
+    # پیدا کردن لینک انس جهانی طلا
+    links = soup.find_all("a", href=True)
 
-    if len(prices) > 1:
+    print("\n🔎 لینک‌های مربوط به انس طلا:\n")
 
-        price = prices[1].get_text(" ", strip=True)
+    for link in links:
 
-        print("✅ تتر:", price)
+        text = link.get_text(" ", strip=True)
 
-    else:
+        if "انس طلا" in text:
 
-        print("❌ قیمت تتر پیدا نشد")
+            print("TEXT:", text)
+            print("HREF:", link["href"])
+            print("-" * 50)
 
 except Exception as e:
-
     print("❌ ERROR:", e)
     raise
