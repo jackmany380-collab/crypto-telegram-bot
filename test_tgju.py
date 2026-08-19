@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import re
 
 headers = {
     "User-Agent": "Mozilla/5.0"
@@ -21,18 +20,19 @@ try:
 
     soup = BeautifulSoup(response.text, "html.parser")
 
+    # پیدا کردن متن «نرخ فعلی»
     text = soup.get_text(" ", strip=True)
 
-    match = re.search(
-        r"نرخ فعلی\s*:?\s*([0-9۰-۹][0-9۰-۹,٫.]*)",
-        text
-    )
+    index = text.find("نرخ فعلی")
 
-    if match:
-        price = match.group(1)
-        print("✅ تتر:", price)
+    if index != -1:
+        print("\n✅ «نرخ فعلی» پیدا شد\n")
+
+        # نمایش 300 کاراکتر بعد از «نرخ فعلی»
+        print(text[index:index + 300])
+
     else:
-        print("❌ قیمت تتر پیدا نشد")
+        print("❌ عبارت «نرخ فعلی» پیدا نشد")
 
 except Exception as e:
     print("❌ ERROR:", e)
