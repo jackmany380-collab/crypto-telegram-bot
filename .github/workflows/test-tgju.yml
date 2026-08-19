@@ -16,8 +16,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install requests
-        run: pip install requests
+      - name: Install packages
+        run: pip install requests beautifulsoup4
 
       - name: Test TGJU
         run: python test_tgju.py
