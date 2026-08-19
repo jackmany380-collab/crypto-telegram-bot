@@ -24,7 +24,7 @@ try:
     text = soup.get_text(" ", strip=True)
 
     match = re.search(
-        r"نرخ فعلی\s*:?\s*([\d,]+(?:\.\d+)?)",
+        r"نرخ فعلی\s*:?\s*([0-9۰-۹][0-9۰-۹,٫.]*)",
         text
     )
 
