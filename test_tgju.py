@@ -25,15 +25,17 @@ try:
         class_="text-left"
     )
 
-    print("\nتعداد td های text-left:", len(prices))
-    print("\nمقادیر پیدا شده:\n")
+    if len(prices) > 1:
 
-    for i, item in enumerate(prices):
-        value = item.get_text(" ", strip=True)
+        price = prices[1].get_text(" ", strip=True)
 
-        if value:
-            print(f"{i}: {value}")
+        print("✅ تتر:", price)
+
+    else:
+
+        print("❌ قیمت تتر پیدا نشد")
 
 except Exception as e:
+
     print("❌ ERROR:", e)
     raise
