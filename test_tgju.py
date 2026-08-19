@@ -1,12 +1,12 @@
 import requests
 from bs4 import BeautifulSoup
+import re
 
 headers = {
     "User-Agent": "Mozilla/5.0"
 }
 
-# فقط برای پیدا کردن صفحه واقعی تتر
-url = "https://www.tgju.org/"
+url = "https://www.tgju.org/profile/crypto-tether"
 
 try:
     response = requests.get(
@@ -17,25 +17,22 @@ try:
 
     print("Status:", response.status_code)
 
+    response.raise_for_status()
+
     soup = BeautifulSoup(response.text, "html.parser")
 
-    print("\n🔎 لینک‌هایی که مربوط به تتر هستند:\n")
+    text = soup.get_text(" ", strip=True)
 
-    found = 0
+    match = re.search(
+        r"نرخ فعلی\s*:?\s*([\d,]+(?:\.\d+)?)",
+        text
+    )
 
-    for link in soup.find_all("a", href=True):
-
-        text = link.get_text(" ", strip=True)
-
-        if "تتر" in text:
-
-            print("TEXT:", text)
-            print("HREF:", link["href"])
-            print("-" * 50)
-
-            found += 1
-
-    print("\nتعداد لینک‌های پیدا شده:", found)
+    if match:
+        price = match.group(1)
+        print("✅ تتر:", price)
+    else:
+        print("❌ قیمت تتر پیدا نشد")
 
 except Exception as e:
     print("❌ ERROR:", e)
