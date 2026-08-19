@@ -16,48 +16,51 @@ try:
 
     response.raise_for_status()
 
-    print("Status:", response.status_code)
-    print("Length:", len(response.text))
-    print("=" * 60)
-
     soup = BeautifulSoup(response.text, "html.parser")
 
-    # کلمات مورد نظر
+    print("Status:", response.status_code)
+    print("=" * 70)
+
     keywords = [
         "تتر",
-        "طلای 18",
-        "طلای ۱۸",
+        "طلای 18 عیار",
         "مثقال طلا",
-        "سکه",
+        "سکه امامی",
         "نیم سکه",
         "ربع سکه",
-        "انس طلا"
+        "انس جهانی طلا"
     ]
 
-    # پیدا کردن عناصری که این کلمات را در متن دارند
     for keyword in keywords:
-        print(f"\n🔎 جستجوی: {keyword}")
+
+        print(f"\n🔎 {keyword}")
 
         found = False
 
-        for element in soup.find_all(string=lambda text: text and keyword in text):
+        for text in soup.find_all(string=lambda t: t and keyword in t):
 
-            parent = element.parent
+            element = text.parent
 
-            print("TEXT:", element.strip())
-            print("TAG:", parent.name)
-            print("ID:", parent.get("id"))
-            print("CLASS:", parent.get("class"))
+            print("TEXT:", text.strip()[:100])
+            print("ELEMENT:", element.name)
+            print("HTML اطراف:")
+
+            # نمایش والدهای نزدیک
+            parent = element
+
+            for level in range(4):
+                if parent:
+                    print(f"\n--- Level {level} ---")
+                    print(str(parent)[:2000])
+                    parent = parent.parent
 
             found = True
-
-            # فقط چند نتیجه اول
             break
 
         if not found:
             print("❌ پیدا نشد")
 
-    print("\n" + "=" * 60)
+    print("\n" + "=" * 70)
 
 except Exception as e:
     print("❌ ERROR:", e)
