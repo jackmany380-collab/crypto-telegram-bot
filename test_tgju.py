@@ -1,50 +1,42 @@
 import requests
 from bs4 import BeautifulSoup
-import re
 
 headers = {
     "User-Agent": "Mozilla/5.0"
 }
 
-pages = {
-    "تتر": "https://www.tgju.org/profile/usdt",
-    "طلای 18 عیار": "https://www.tgju.org/profile/geram18",
-    "مثقال طلا": "https://www.tgju.org/profile/mesghal",
-    "سکه امامی": "https://www.tgju.org/profile/sekee",
-    "نیم سکه": "https://www.tgju.org/profile/nim",
-    "ربع سکه": "https://www.tgju.org/profile/rob",
-}
+# فقط برای پیدا کردن صفحه واقعی تتر
+url = "https://www.tgju.org/"
 
-for name, url in pages.items():
+try:
+    response = requests.get(
+        url,
+        headers=headers,
+        timeout=20
+    )
 
-    print("\n" + "=" * 50)
-    print(f"🔎 {name}")
-    print("=" * 50)
+    print("Status:", response.status_code)
 
-    try:
-        response = requests.get(
-            url,
-            headers=headers,
-            timeout=20
-        )
+    soup = BeautifulSoup(response.text, "html.parser")
 
-        print("Status:", response.status_code)
+    print("\n🔎 لینک‌هایی که مربوط به تتر هستند:\n")
 
-        soup = BeautifulSoup(response.text, "html.parser")
+    found = 0
 
-        # پیدا کردن عبارت «نرخ فعلی»
-        text = soup.get_text(" ", strip=True)
+    for link in soup.find_all("a", href=True):
 
-        match = re.search(
-            r"نرخ فعلی\s*:?\s*([\d,]+(?:\.\d+)?)",
-            text
-        )
+        text = link.get_text(" ", strip=True)
 
-        if match:
-            price = match.group(1)
-            print(f"✅ {name}: {price}")
-        else:
-            print(f"❌ قیمت {name} پیدا نشد")
+        if "تتر" in text:
 
-    except Exception as e:
-        print(f"❌ ERROR: {e}")
+            print("TEXT:", text)
+            print("HREF:", link["href"])
+            print("-" * 50)
+
+            found += 1
+
+    print("\nتعداد لینک‌های پیدا شده:", found)
+
+except Exception as e:
+    print("❌ ERROR:", e)
+    raise
