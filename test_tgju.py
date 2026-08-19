@@ -7,17 +7,6 @@ headers = {
     "User-Agent": "Mozilla/5.0"
 }
 
-items = {
-    "دلار آزاد": "l-price_dollar_rl",
-    "تتر": "l-price_usdt",
-    "طلای 18 عیار": "l-price_gold_18",
-    "مثقال طلا": "l-price_gold_mithqal",
-    "سکه امامی": "l-price_sekee",
-    "نیم سکه": "l-price_nim",
-    "ربع سکه": "l-price_rob",
-    "انس جهانی طلا": "l-price_xau"
-}
-
 try:
     response = requests.get(
         URL,
@@ -29,21 +18,46 @@ try:
 
     print("Status:", response.status_code)
     print("Length:", len(response.text))
-    print("=" * 40)
+    print("=" * 60)
 
     soup = BeautifulSoup(response.text, "html.parser")
 
-    for name, item_id in items.items():
+    # کلمات مورد نظر
+    keywords = [
+        "تتر",
+        "طلای 18",
+        "طلای ۱۸",
+        "مثقال طلا",
+        "سکه",
+        "نیم سکه",
+        "ربع سکه",
+        "انس طلا"
+    ]
 
-        item = soup.find(id=item_id)
+    # پیدا کردن عناصری که این کلمات را در متن دارند
+    for keyword in keywords:
+        print(f"\n🔎 جستجوی: {keyword}")
 
-        if item:
-            value = item.get_text(strip=True)
-            print(f"✅ {name}: {value}")
-        else:
-            print(f"❌ {name}: پیدا نشد")
+        found = False
 
-    print("=" * 40)
+        for element in soup.find_all(string=lambda text: text and keyword in text):
+
+            parent = element.parent
+
+            print("TEXT:", element.strip())
+            print("TAG:", parent.name)
+            print("ID:", parent.get("id"))
+            print("CLASS:", parent.get("class"))
+
+            found = True
+
+            # فقط چند نتیجه اول
+            break
+
+        if not found:
+            print("❌ پیدا نشد")
+
+    print("\n" + "=" * 60)
 
 except Exception as e:
     print("❌ ERROR:", e)
