@@ -20,16 +20,19 @@ try:
 
     soup = BeautifulSoup(response.text, "html.parser")
 
-    price = soup.find(
+    prices = soup.find_all(
         "td",
         class_="text-left"
     )
 
-    if price:
-        value = price.get_text(strip=True)
-        print("✅ تتر:", value)
-    else:
-        print("❌ قیمت تتر پیدا نشد")
+    print("\nتعداد td های text-left:", len(prices))
+    print("\nمقادیر پیدا شده:\n")
+
+    for i, item in enumerate(prices):
+        value = item.get_text(" ", strip=True)
+
+        if value:
+            print(f"{i}: {value}")
 
 except Exception as e:
     print("❌ ERROR:", e)
