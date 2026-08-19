@@ -5,7 +5,7 @@ headers = {
     "User-Agent": "Mozilla/5.0"
 }
 
-url = "https://www.tgju.org/"
+url = "https://www.tgju.org/profile/ons"
 
 try:
     response = requests.get(
@@ -20,20 +20,19 @@ try:
 
     soup = BeautifulSoup(response.text, "html.parser")
 
-    # پیدا کردن لینک انس جهانی طلا
-    links = soup.find_all("a", href=True)
+    prices = soup.find_all(
+        "td",
+        class_="text-left"
+    )
 
-    print("\n🔎 لینک‌های مربوط به انس طلا:\n")
+    print("\nتعداد td های text-left:", len(prices))
+    print("\nمقادیر پیدا شده:\n")
 
-    for link in links:
+    for i, item in enumerate(prices):
+        value = item.get_text(" ", strip=True)
 
-        text = link.get_text(" ", strip=True)
-
-        if "انس طلا" in text:
-
-            print("TEXT:", text)
-            print("HREF:", link["href"])
-            print("-" * 50)
+        if value:
+            print(f"{i}: {value}")
 
 except Exception as e:
     print("❌ ERROR:", e)
