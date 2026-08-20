@@ -3,6 +3,11 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 
+
+# =========================================================
+# تنظیمات
+# =========================================================
+
 TOKEN = os.environ["BOT_TOKEN"]
 CHANNEL = "@ZEROVIXX"
 
@@ -50,7 +55,7 @@ def get_crypto_prices():
 
 
 # =========================================================
-# دریافت قیمت از TGJU
+# دریافت قیمت‌های TGJU
 # =========================================================
 
 def get_tgju_prices():
@@ -95,7 +100,11 @@ def get_tgju_prices():
                 if item.get_text(" ", strip=True)
             ]
 
+            # -------------------------------------------------
             # تتر
+            # قیمت فعلی تتر در index شماره 1
+            # -------------------------------------------------
+
             if name == "tether":
 
                 if len(values) > 1:
@@ -103,7 +112,11 @@ def get_tgju_prices():
                 else:
                     results[name] = "نامشخص"
 
-            # بقیه موارد
+            # -------------------------------------------------
+            # سایر قیمت‌ها
+            # قیمت فعلی در index شماره 0
+            # -------------------------------------------------
+
             else:
 
                 if len(values) > 0:
@@ -128,7 +141,8 @@ def get_dollar():
 
     try:
 
-        url = "https://www.tgju.org/"
+        # صفحه مستقیم دلار آزاد TGJU
+        url = "https://www.tgju.org/profile/price_dollar_rl"
 
         response = requests.get(
             url,
@@ -143,48 +157,20 @@ def get_dollar():
             "html.parser"
         )
 
-        # پیدا کردن بلوک دلار
-        text = soup.get_text(" ", strip=True)
+        prices = soup.find_all(
+            "td",
+            class_="text-left"
+        )
 
-        marker = "دلار"
+        values = [
+            item.get_text(" ", strip=True)
+            for item in prices
+            if item.get_text(" ", strip=True)
+        ]
 
-        index = text.find(marker)
-
-        if index != -1:
-
-            section = text[index:index + 500]
-
-            print("Dollar section:", section)
-
-            # پیدا کردن عددهای موجود در بخش
-            import re
-
-            numbers = re.findall(
-                r"[0-9۰-۹][0-9۰-۹,]*",
-                section
-            )
-
-            if numbers:
-
-                # بزرگ‌ترین عدد معمولاً قیمت دلار است
-                numbers_clean = []
-
-                for number in numbers:
-
-                    number = number.replace(",", "")
-
-                    try:
-                        value = int(number)
-
-                        if value > 100000:
-                            numbers_clean.append(value)
-
-                    except:
-                        pass
-
-                if numbers_clean:
-
-                    return f"{max(numbers_clean):,}"
+        # قیمت فعلی دلار = index 0
+        if len(values) > 0:
+            return values[0]
 
         return "نامشخص"
 
@@ -201,23 +187,48 @@ def get_dollar():
 
 def build_message():
 
+    print("🚀 شروع دریافت اطلاعات...")
+
+    # -----------------------------------------------------
     # کریپتو
-    btc_price, btc_change, eth_price, eth_change = get_crypto_prices()
+    # -----------------------------------------------------
+
+    btc_price, btc_change, eth_price, eth_change = (
+        get_crypto_prices()
+    )
 
     btc_arrow = "🟢" if btc_change >= 0 else "🔴"
     eth_arrow = "🟢" if eth_change >= 0 else "🔴"
 
+    # -----------------------------------------------------
     # TGJU
+    # -----------------------------------------------------
+
+    print("📡 دریافت اطلاعات TGJU...")
+
     tgju = get_tgju_prices()
+
+    # -----------------------------------------------------
+    # دلار آزاد
+    # -----------------------------------------------------
+
+    print("💵 دریافت دلار آزاد...")
 
     dollar = get_dollar()
 
+    # -----------------------------------------------------
     # زمان
+    # -----------------------------------------------------
+
     now = datetime.now(timezone.utc)
 
     update_time = now.strftime(
         "%Y-%m-%d %H:%M UTC"
     )
+
+    # -----------------------------------------------------
+    # پیام نهایی
+    # -----------------------------------------------------
 
     message = f"""📊 وضعیت بازار
 
@@ -268,12 +279,10 @@ def build_message():
 
 
 # =========================================================
-# ارسال به تلگرام
+# ارسال پیام به تلگرام
 # =========================================================
 
 try:
-
-    print("🚀 شروع دریافت اطلاعات...")
 
     message = build_message()
 
