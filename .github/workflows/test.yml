@@ -19,8 +19,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install requests
-        run: pip install requests
+      - name: Install dependencies
+        run: |
+          pip install requests
+          pip install beautifulsoup4
 
       - name: Run bot
         env:
