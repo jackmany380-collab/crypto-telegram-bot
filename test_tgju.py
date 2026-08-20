@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-url = "https://www.tgju.org/"
+url = "https://www.tgju.org/profile/price_dollar_rl"
 
 headers = {
     "User-Agent": "Mozilla/5.0"
@@ -17,21 +17,18 @@ print("Status:", response.status_code)
 
 soup = BeautifulSoup(response.text, "html.parser")
 
-print("\n🔎 لینک‌ها و متن‌های مربوط به دلار:\n")
+prices = soup.find_all(
+    "td",
+    class_="text-left"
+)
 
-count = 0
+print("\nتعداد td های text-left:", len(prices))
 
-for a in soup.find_all("a", href=True):
+print("\nمقادیر پیدا شده:\n")
 
-    text = a.get_text(" ", strip=True)
-    href = a.get("href")
+for i, item in enumerate(prices):
 
-    if "دلار" in text:
+    value = item.get_text(" ", strip=True)
 
-        print(f"TEXT: {text}")
-        print(f"HREF: {href}")
-        print("-" * 60)
-
-        count += 1
-
-print("\nتعداد موارد:", count)
+    if value:
+        print(f"{i}: {value}")
